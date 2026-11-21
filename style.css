@@ -58,3 +58,23 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
  .compact-import .ico{width:15px;height:15px}
  .compact-import{padding:7px 8px}
 }
+
+/* Larger library rows — comfortable touch targets on iPhone and in the car. */
+.track-list{gap:11px}
+.track{min-height:84px;padding:13px 10px 13px 13px;gap:11px;border-radius:18px;cursor:pointer}
+.track-art{width:56px;height:56px;border-radius:14px}
+.track-art svg{width:27px;height:27px}
+.track-info{align-self:stretch;justify-content:center;min-height:56px;padding:4px 0;gap:5px}
+.track-info strong{font-size:15.5px;line-height:1.27}
+.track-info span{font-size:12.5px;line-height:1.3}
+.track-action{width:44px;min-width:44px;height:48px;flex:0 0 44px;border-radius:12px}
+.track-action.fav{font-size:21px}
+.track-action .ico{width:22px;height:22px}
+@media(max-width:390px){
+ .track{min-height:80px;padding:12px 7px 12px 10px;gap:7px}
+ .track-art{width:50px;height:50px}
+ .track-info{min-height:52px}
+ .track-info strong{font-size:14.5px}
+ .track-info span{font-size:12px}
+ .track-action{width:42px;min-width:42px;height:46px;flex-basis:42px}
+}
