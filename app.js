@@ -15,7 +15,10 @@
     'nowTitle', 'nowArtist', 'nowMore', 'currentTime', 'duration', 'seek',
     'playBtn', 'playIcon', 'prevBtn', 'nextBtn', 'shuffleBtn', 'repeatBtn',
     'repeatOneBadge', 'storageUsed',
-    'trackDialog', 'editTitle', 'editArtist', 'deleteTrackBtn', 'saveTrackBtn'
+    'trackDialog', 'editTitle', 'editArtist', 'deleteTrackBtn', 'saveTrackBtn',
+    'spotifyForm', 'spotifyUrl', 'spotifyFind', 'spotifyFeedback', 'spotifyResults',
+    'spotifyResultTitle', 'spotifySource', 'spotifyMatchedList', 'spotifyPlay',
+    'spotifySettings', 'spotifyClientId', 'spotifyConnect', 'spotifyDisconnect', 'spotifyRedirect'
   ].map(id => [id, $(id)]));
 
   let dbPromise;
@@ -248,6 +251,249 @@
     clearTimeout(noticeTimer);dom.notice.textContent=text;dom.notice.classList.toggle('error',type==='error');dom.notice.hidden=false;
     if(ms>0)noticeTimer=setTimeout(()=>{dom.notice.hidden=true;},ms);
   }
+  // Spotify's API only provides catalog metadata, never downloadable audio.
+  // Keep Spotify metadata transient; the only saved songs are user-imported Blobs.
+  const SPOTIFY_CLIENT_KEY='drivetunes-spotify-client-v1';
+  const SPOTIFY_AUTH_KEY='drivetunes-spotify-auth-v1';
+  const SPOTIFY_PENDING_KEY='drivetunes-spotify-pending-v1';
+  const SPOTIFY_TOKEN_KEY='drivetunes-spotify-token-v1';
+  let spotifyMatches=[];
+  let spotifyLookupBusy=false;
+
+  function parseSpotifyLink(input){
+    const value=String(input||'').trim();
+    const uri=value.match(/^spotify:(track|playlist):([A-Za-z0-9]{22})$/i);
+    if(uri){
+      const kind=uri[1].toLowerCase(),id=uri[2];
+      return {kind,id,url:'https://open.spotify.com/'+kind+'/'+id};
+    }
+    let url;
+    try{url=new URL(value);}catch{return null;}
+    if(url.protocol!=='https:'||url.hostname!=='open.spotify.com')return null;
+    const parts=url.pathname.split('/').filter(Boolean);
+    if(parts[0]?.startsWith('intl-'))parts.shift();
+    if(parts.length!==2||!['track','playlist'].includes(parts[0])||!/^[A-Za-z0-9]{22}$/.test(parts[1]))return null;
+    return {kind:parts[0],id:parts[1],url:'https://open.spotify.com/'+parts[0]+'/'+parts[1]};
+  }
+  function spotifyStatus(message,error=false){
+    dom.spotifyFeedback.hidden=!message;
+    dom.spotifyFeedback.classList.toggle('error',error);
+    dom.spotifyFeedback.textContent=message||'';
+  }
+  function spotifyNormalize(value){
+    return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/\([^)]*(?:remaster|version|live|edit|radio)[^)]*\)/gi,'')
+      .replace(/[^a-z0-9\u0370-\u03ff]+/gi,' ').replace(/\s+/g,' ').trim();
+  }
+  function spotifySimilarity(a,b){
+    const x=spotifyNormalize(a),y=spotifyNormalize(b);
+    if(!x||!y)return 0;
+    if(x===y)return 1;
+    if(x.length>5&&y.length>5&&(x.includes(y)||y.includes(x)))return .87;
+    const first=new Set(x.split(' ').filter(z=>z.length>1));
+    const second=new Set(y.split(' ').filter(z=>z.length>1));
+    const intersection=[...first].filter(z=>second.has(z)).length;
+    return intersection/Math.max(first.size,second.size,1);
+  }
+  function spotifyFindLocal(item){
+    const ranked=tracks.map(tr=>{
+      const titleScore=spotifySimilarity(tr.title,item.title);
+      const knownArtist=item.artist&&tr.artist&&tr.artist!=='Άγνωστος καλλιτέχνης';
+      const artistScore=knownArtist?spotifySimilarity(tr.artist,item.artist):0;
+      // Avoid matching songs with the same title but different known artists.
+      const eligible=titleScore>=.78&&(!knownArtist||artistScore>=.6);
+      return {track:tr,score:eligible?(titleScore+artistScore*.15):0};
+    }).sort((a,b)=>b.score-a.score);
+    return ranked[0]?.score>=.78?ranked[0].track:null;
+  }
+  function spotifyOembedTitle(title){
+    const clean=String(title||'').replace(/\s*\|\s*Spotify.*$/i,'').trim();
+    const m=clean.match(/^(.+?)\s+-\s+(?:song(?: and lyrics)? by|single by)\s+(.+)$/i);
+    return m?{title:m[1].trim(),artist:m[2].trim()}:{title:clean,artist:''};
+  }
+  function spotifyRender(items,title,parsed){
+    spotifyMatches=[];
+    dom.spotifyResults.hidden=false;
+    dom.spotifyResultTitle.textContent=title;
+    dom.spotifySource.href=parsed.url;
+    const fragment=document.createDocumentFragment();
+    for(const item of items.slice(0,500)){
+      const match=spotifyFindLocal(item);
+      if(match)spotifyMatches.push(match.id);
+      const row=document.createElement('div');row.className='spotify-match';
+      const info=document.createElement('div');
+      const heading=document.createElement('strong');heading.textContent=item.title||'Χωρίς τίτλο';
+      info.appendChild(heading);
+      if(item.artist){const artist=document.createElement('small');artist.textContent=item.artist;info.appendChild(artist);}
+      const status=document.createElement('span');
+      status.className='spotify-status'+(match?'':' missing');
+      status.textContent=match?'✓ Offline':'Χρειάζεται αρχείο';
+      row.append(info,status);fragment.appendChild(row);
+    }
+    dom.spotifyMatchedList.replaceChildren(fragment);
+    const found=spotifyMatches.length;
+    dom.spotifyPlay.hidden=found===0;
+    dom.spotifyPlay.textContent=found>1?'▶ Παίξε '+found+' διαθέσιμα':'▶ Παίξε το διαθέσιμο';
+    if(!items.length){
+      spotifyStatus('Βρέθηκε η playlist, αλλά η λίστα τραγουδιών δεν είναι διαθέσιμη χωρίς σύνδεση Spotify. Χρειάζεται πρόσβαση σε δική σου ή συνεργατική playlist.');
+    }else{
+      spotifyStatus('Αναγνωρίστηκαν '+items.length+' τραγούδια. '+found+' υπάρχουν ήδη αποθηκευμένα για offline ακρόαση.'+
+        (items.length>found?' Τα υπόλοιπα χρειάζονται δικά σου αρχεία μουσικής.':''));
+    }
+  }
+  function spotifyToken(){
+    try{
+      const value=JSON.parse(sessionStorage.getItem(SPOTIFY_TOKEN_KEY)||'null');
+      return value&&Date.now()<value.expiresAt-30000?value.accessToken:null;
+    }catch{return null;}
+  }
+  function spotifyRedirectUri(){return location.origin+location.pathname;}
+  async function spotifyApi(path){
+    const token=spotifyToken();
+    if(!token)throw new Error('Χρειάζεται σύνδεση Spotify για να διαβάσουμε όλα τα τραγούδια της playlist.');
+    const target=new URL(path,'https://api.spotify.com');
+    if(target.origin!=='https://api.spotify.com')throw new Error('Μη έγκυρη διεύθυνση API.');
+    const response=await fetch(target.href,{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+    if(response.status===401)throw new Error('Η σύνδεση Spotify έληξε. Σύνδεσέ το ξανά.');
+    if(response.status===403)throw new Error('Το Spotify επιτρέπει ανάγνωση μόνο playlist που κατέχεις ή συνδιαχειρίζεσαι.');
+    if(response.status===429)throw new Error('Πολλά αιτήματα στο Spotify. Δοκίμασε αργότερα.');
+    if(!response.ok)throw new Error('Το Spotify API επέστρεψε σφάλμα '+response.status+'.');
+    return response.json();
+  }
+  async function spotifyItems(playlistId){
+    let offset=0,items=[];
+    for(let page=0;page<10;page++){
+      const data=await spotifyApi('/v1/playlists/'+playlistId+'/items?limit=50&offset='+offset);
+      const batch=Array.isArray(data.items)?data.items:[];
+      for(const entry of batch){
+        const track=entry.item||entry.track;
+        if(track?.name&&track.type!=='episode'){
+          items.push({title:track.name,artist:Array.isArray(track.artists)?track.artists.map(a=>a.name).filter(Boolean).join(', '):''});
+        }
+      }
+      offset+=batch.length;
+      if(batch.length===0||!data.next||offset>=500)break;
+    }
+    return items;
+  }
+  async function spotifyLookup(){
+    if(spotifyLookupBusy)return;
+    const parsed=parseSpotifyLink(dom.spotifyUrl.value);
+    if(!parsed){
+      spotifyStatus('Βάλε κανονικό link από open.spotify.com/track/… ή /playlist/….',true);
+      return;
+    }
+    spotifyLookupBusy=true;dom.spotifyFind.disabled=true;dom.spotifyResults.hidden=true;
+    spotifyStatus('Αναγνώριση Spotify link…');
+    try{
+      const response=await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent(parsed.url),{cache:'no-store'});
+      if(!response.ok)throw new Error('Δεν μπόρεσα να διαβάσω το Spotify link ('+response.status+').');
+      const meta=await response.json();
+      const title=String(meta.title||'Spotify');
+      let items=[];
+      if(parsed.kind==='track'){
+        const p=spotifyOembedTitle(title);
+        if(spotifyToken()){
+          try{
+            const t=await spotifyApi('/v1/tracks/'+parsed.id);
+            if(t.name)p.title=t.name;
+            if(Array.isArray(t.artists))p.artist=t.artists.map(a=>a.name).join(', ');
+          }catch(err){console.info('Spotify track metadata fallback',err);}
+        }
+        items=[p];
+      }else if(spotifyToken()){
+        items=await spotifyItems(parsed.id);
+      }else{
+        dom.spotifySettings.open=true;
+      }
+      spotifyRender(items,title,parsed);
+    }catch(error){
+      spotifyStatus('Δεν ολοκληρώθηκε η αναζήτηση: '+error.message,true);
+    }finally{spotifyLookupBusy=false;dom.spotifyFind.disabled=false;}
+  }
+
+  function spotifyRandom(length){
+    const bytes=crypto.getRandomValues(new Uint8Array(length));
+    return Array.from(bytes,b=>'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[b%66]).join('');
+  }
+  async function spotifyConnect(){
+    const clientId=dom.spotifyClientId.value.trim();
+    if(!/^[a-z0-9]{32}$/i.test(clientId)){
+      spotifyStatus('Συμπλήρωσε έγκυρο Spotify Developer Client ID (32 χαρακτήρες).',true);
+      dom.spotifyClientId.focus();return;
+    }
+    if(!crypto.subtle){spotifyStatus('Η σύνδεση Spotify χρειάζεται ασφαλή HTTPS σύνδεση.',true);return;}
+    try{
+      localStorage.setItem(SPOTIFY_CLIENT_KEY,clientId);
+      const verifier=spotifyRandom(64);
+      const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
+      const challenge=btoa(String.fromCharCode(...digest)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+      const state=spotifyRandom(24);
+      sessionStorage.setItem(SPOTIFY_AUTH_KEY,JSON.stringify({verifier,state,at:Date.now()}));
+      sessionStorage.setItem(SPOTIFY_PENDING_KEY,dom.spotifyUrl.value.trim());
+      const url=new URL('https://accounts.spotify.com/authorize');
+      url.search=new URLSearchParams({
+        response_type:'code',client_id:clientId,redirect_uri:spotifyRedirectUri(),
+        scope:'playlist-read-private',code_challenge_method:'S256',code_challenge:challenge,state
+      }).toString();
+      location.assign(url.href);
+    }catch(error){spotifyStatus('Δεν ξεκίνησε η σύνδεση Spotify: '+error.message,true);}
+  }
+  async function spotifyAuthCallback(){
+    const params=new URLSearchParams(location.search);
+    const code=params.get('code'),state=params.get('state'),error=params.get('error');
+    if(!code&&!error)return;
+    // Never leave an OAuth code in browser history.
+    history.replaceState(null,'',spotifyRedirectUri());
+    if(error){spotifyStatus('Η σύνδεση Spotify δεν ολοκληρώθηκε ('+error+').',true);return;}
+    let saved;
+    try{saved=JSON.parse(sessionStorage.getItem(SPOTIFY_AUTH_KEY)||'null');}catch{}
+    sessionStorage.removeItem(SPOTIFY_AUTH_KEY);
+    if(!saved||saved.state!==state||Date.now()-saved.at>10*60*1000){
+      spotifyStatus('Η σύνδεση έληξε. Δοκίμασε ξανά από το DriveTunes.',true);return;
+    }
+    const clientId=(localStorage.getItem(SPOTIFY_CLIENT_KEY)||'').trim();
+    try{
+      const response=await fetch('https://accounts.spotify.com/api/token',{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:new URLSearchParams({
+          grant_type:'authorization_code',code,redirect_uri:spotifyRedirectUri(),
+          client_id:clientId,code_verifier:saved.verifier
+        })
+      });
+      if(!response.ok)throw new Error('Ο λογαριασμός δεν συνδέθηκε ('+response.status+').');
+      const token=await response.json();
+      sessionStorage.setItem(SPOTIFY_TOKEN_KEY,JSON.stringify({
+        accessToken:token.access_token,expiresAt:Date.now()+Number(token.expires_in||3600)*1000
+      }));
+      spotifyStatus('Το Spotify συνδέθηκε. Τώρα μπορείς να αντιστοιχίσεις δικές σου playlists.');
+      const pending=sessionStorage.getItem(SPOTIFY_PENDING_KEY)||'';
+      sessionStorage.removeItem(SPOTIFY_PENDING_KEY);
+      if(pending){dom.spotifyUrl.value=pending;await spotifyLookup();}
+    }catch(e){spotifyStatus(e.message,true);}
+  }
+  function spotifySetup(){
+    dom.spotifyRedirect.textContent=spotifyRedirectUri();
+    try{dom.spotifyClientId.value=localStorage.getItem(SPOTIFY_CLIENT_KEY)||'';}catch{}
+    dom.spotifyForm.addEventListener('submit',event=>{event.preventDefault();spotifyLookup();});
+    dom.spotifyPlay.addEventListener('click',()=>{
+      const ids=[...new Set(spotifyMatches)].filter(id=>tracks.some(t=>t.id===id));
+      if(!ids.length)return;
+      currentQueue=ids;loadTrack(ids[0],true);
+    });
+    dom.spotifyClientId.addEventListener('change',()=>{
+      try{localStorage.setItem(SPOTIFY_CLIENT_KEY,dom.spotifyClientId.value.trim());}catch{}
+    });
+    dom.spotifyConnect.addEventListener('click',spotifyConnect);
+    dom.spotifyDisconnect.addEventListener('click',()=>{
+      sessionStorage.removeItem(SPOTIFY_TOKEN_KEY);
+      sessionStorage.removeItem(SPOTIFY_AUTH_KEY);
+      spotifyStatus('Το Spotify αποσυνδέθηκε. Τα offline αρχεία σου παραμένουν.');
+    });
+
+  }
+
   function prepareQueue(selectedId){
     const ids=sortedTracks().map(t=>t.id);
     if(!ids.includes(selectedId)) ids.unshift(selectedId);
@@ -478,6 +724,7 @@
   window.addEventListener('beforeunload',()=>{releaseCurrent();clearPrepared();});
 
   async function start(){
+    spotifySetup();
     // Request a music-playback audio session when supported by WebKit.
     try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}
     document.querySelectorAll('.tab').forEach(tab=>{const active=tab.dataset.filter===prefs.filter;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));});
@@ -485,6 +732,7 @@
     installHandlers();
     if('serviceWorker' in navigator&&window.isSecureContext){try{await navigator.serviceWorker.register('./sw.js');}catch(err){console.warn('Offline app shell unavailable',err);}}
     try{await loadAllTracks();}catch(err){console.error(err);showNotice('Δεν άνοιξε η τοπική βιβλιοθήκη. Έλεγξε τις ρυθμίσεις αποθήκευσης του Safari.','error',0);}
+    await spotifyAuthCallback().catch(e=>spotifyStatus(e.message,true));
   }
   start();
 })();
