@@ -14,9 +14,8 @@
     'sortBtn', 'notice', 'importProgress', 'importText', 'importBar', 'playerDock',
     'nowTitle', 'nowArtist', 'nowMore', 'currentTime', 'duration', 'seek',
     'playBtn', 'playIcon', 'prevBtn', 'nextBtn', 'shuffleBtn', 'repeatBtn',
-    'repeatOneBadge', 'storageUsed', 'networkStatus', 'networkText',
-    'trackDialog', 'editTitle', 'editArtist', 'deleteTrackBtn', 'saveTrackBtn',
-    'installBtn', 'installDialog', 'installClose', 'installOk'
+    'repeatOneBadge', 'storageUsed',
+    'trackDialog', 'editTitle', 'editArtist', 'deleteTrackBtn', 'saveTrackBtn'
   ].map(id => [id, $(id)]));
 
   let dbPromise;
@@ -29,7 +28,6 @@
   let loadingSerial = 0;
   let dialogId = null;
   let busyImport = false;
-  let installPrompt = null;
   let noticeTimer = null;
   let metadataTick = 0;
   const prefs = {filter: 'all', sort: 'added', shuffle: false, repeat: 'off'};
@@ -435,11 +433,13 @@
     // Lock screen and Bluetooth transport controls should change SONGS.
     safe('previoustrack',()=>playPrevious(true));
     safe('nexttrack',()=>playNext());
-    // Explicitly unregister seeking actions so the app doesn't request ±10s controls.
-    // Re-register on 'playing' and after audio.play(): iOS WebKit may ignore
-    // actions set up before the audio session is active. The OS still owns its UI.
-    safe('seekbackward',null);
-    safe('seekforward',null);
+    // iOS may show ±10s buttons even with next/previous registered.
+    // Treat the actions as previous/next songs when iOS sends them;
+    // the iOS lock-screen ICONS themselves cannot be changed by this PWA.
+    const ios=/iPad|iPhone|iPod/i.test(navigator.userAgent||'')||
+      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    safe('seekbackward',ios?()=>playPrevious(true):null);
+    safe('seekforward',ios?()=>playNext():null);
     safe('seekto',null);
     safe('stop',()=>{audio.pause();audio.currentTime=0;});
   }
@@ -449,28 +449,6 @@
     dom.seek.value=Number.isFinite(audio.duration)&&audio.duration>0?String(Math.round(audio.currentTime/audio.duration*1000)):'0';
     const now=Date.now();if(now-metadataTick>900){updateMediaPosition();metadataTick=now;}
   }
-  function updateNetwork(){
-    const online=navigator.onLine;
-    dom.networkStatus.classList.toggle('offline',!online);
-    dom.networkText.textContent=online?'Offline ready':'Χωρίς internet';
-  }
-  function setupInstall(){
-    const installed=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-    const ua=navigator.userAgent||'';
-    const isIOS=/iPad|iPhone|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-    const show=()=>{dom.installBtn.hidden=installed()||!(isIOS||installPrompt);};
-    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;show();});
-    window.addEventListener('appinstalled',()=>{installPrompt=null;dom.installBtn.hidden=true;});
-    dom.installBtn.addEventListener('click',async()=>{
-      if(installed())return;
-      if(installPrompt){const evt=installPrompt;installPrompt=null;try{await evt.prompt();const answer=await evt.userChoice;if(answer?.outcome==='accepted'){show();return;}}catch(_){}}
-      dom.installDialog.showModal();show();
-    });
-    dom.installClose.onclick=dom.installOk.onclick=()=>dom.installDialog.close();
-    window.addEventListener('pageshow',show);
-    show();
-  }
-
   dom.importTop.addEventListener('click',()=>dom.fileInput.click());
   dom.emptyImport.addEventListener('click',()=>dom.fileInput.click());
   dom.fileInput.addEventListener('change',event=>{importFiles(event.target.files);});
@@ -495,15 +473,16 @@
   audio.addEventListener('durationchange',syncProgress);audio.addEventListener('timeupdate',syncProgress);
   audio.addEventListener('ended',()=>playNext(true));
   audio.addEventListener('error',()=>{if(audio.currentSrc)showNotice('Αυτό το αρχείο δεν μπορεί να αναπαραχθεί. Δοκίμασε MP3 ή M4A.','error',9500);});
-  window.addEventListener('online',updateNetwork);window.addEventListener('offline',updateNetwork);
   document.addEventListener('dragover',event=>{if(event.dataTransfer?.types?.includes('Files'))event.preventDefault();});
   document.addEventListener('drop',event=>{if(event.dataTransfer?.files?.length){event.preventDefault();importFiles(event.dataTransfer.files);}});
   window.addEventListener('beforeunload',()=>{releaseCurrent();clearPrepared();});
 
   async function start(){
+    // Request a music-playback audio session when supported by WebKit.
+    try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(_){}
     document.querySelectorAll('.tab').forEach(tab=>{const active=tab.dataset.filter===prefs.filter;tab.classList.toggle('active',active);tab.setAttribute('aria-selected',String(active));});
     dom.shuffleBtn.classList.toggle('active',prefs.shuffle);dom.shuffleBtn.setAttribute('aria-pressed',String(prefs.shuffle));setRepeatMode(prefs.repeat);
-    installHandlers();setupInstall();updateNetwork();
+    installHandlers();
     if('serviceWorker' in navigator&&window.isSecureContext){try{await navigator.serviceWorker.register('./sw.js');}catch(err){console.warn('Offline app shell unavailable',err);}}
     try{await loadAllTracks();}catch(err){console.error(err);showNotice('Δεν άνοιξε η τοπική βιβλιοθήκη. Έλεγξε τις ρυθμίσεις αποθήκευσης του Safari.','error',0);}
   }

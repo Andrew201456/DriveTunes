@@ -11,7 +11,7 @@ assert.doesNotThrow(()=>new Function(js));
 assert.doesNotThrow(()=>new Function(sw));
 assert.equal(manifest.display,'standalone');
 assert.equal(manifest.icons.length,2);
-for(const x of ['id="fileInput"','multiple hidden','id="audio"','id="playerDock"','id="shuffleBtn"','id="repeatBtn"','id="installBtn"'])assert(html.includes(x),`HTML missing ${x}`);
+for(const x of ['id="fileInput"','multiple hidden','id="audio"','id="playerDock"','id="shuffleBtn"','id="repeatBtn"'])assert(html.includes(x),`HTML missing ${x}`);
 assert(js.includes("db.createObjectStore('files'"),'Binary store missing');
 assert(js.includes('blob: file'),'Audio files not persisted');
 assert(js.includes('mediaSession.setActionHandler'),'Media Session controls missing');
@@ -38,15 +38,20 @@ console.log('PASS: files, manifest, JS/SW syntax, HTML IDs, CSS braces, ID3 meta
 
 assert(!html.includes('class="hero"'),'Oversized hero must not reappear');
 assert(html.includes('class="primary-button compact-import"'),'Compact add button missing');
-assert(html.includes('id="networkStatus"'),'Network status missing');
 assert(js.includes("safe('previoustrack',()=>playPrevious(true))"),'Previous track must switch songs');
 assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch songs');
 assert(!/safe\('seek(?:backward|forward)',details/.test(js),'10 second skipping handlers remain');
-assert(js.includes("safe('seekbackward',null)")&&js.includes("safe('seekforward',null)"),'Skip controls must be deregistered');
-assert(sw.includes('drivetunes-shell-v2'),'Cache version should be bumped');
+assert(js.includes("safe('seekbackward',ios?()=>playPrevious(true):null)")&&js.includes("safe('seekforward',ios?()=>playNext():null)"),'iOS seek controls must select songs');
+assert(sw.includes('drivetunes-shell-v4'),'Cache version should be bumped');
 
 assert(js.includes("audio.addEventListener('playing',()=>{installHandlers();updateMediaSession();updatePlayButton();})"),'Media Session must be registered after audio starts');
 assert(js.includes('await audio.play();installHandlers();updateMediaSession()'),'Media Session registration after successful play missing');
 assert(js.includes('row.dataset.play=String(track.id)'),'Card tap-to-play target missing');
 assert(css.includes('.track{min-height:84px'),'Larger song rows missing');
-assert(sw.includes('drivetunes-shell-v3'),'PWA cache version not updated');
+assert(sw.includes('drivetunes-shell-v4'),'PWA cache version not updated');
+
+assert(!html.includes('class="info-card"'),'Installation instructions must be removed');
+assert(!html.includes('id="installDialog"')&&!html.includes('id="installBtn"'),'In-app install UI must be removed');
+assert(!html.includes('id="networkStatus"'),'Unnecessary online status badge must be removed');
+assert(!js.includes('setupInstall()')&&!js.includes('updateNetwork()'),'Removed interface handlers remain');
+assert(js.includes("navigator.audioSession.type='playback'"),'Music audio session should be requested where supported');

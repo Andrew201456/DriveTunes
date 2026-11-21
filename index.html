@@ -20,10 +20,9 @@
     <header class="app-header">
       <div class="app-brand">
         <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 20V12m5 12V8m5 18V6m5 14v-8"/></svg></div>
-        <div class="app-heading"><strong>DriveTunes</strong><span>Offline Music</span></div>
+        <div class="app-heading"><strong>DriveTunes</strong></div>
       </div>
       <div class="header-tools">
-        <button id="installBtn" type="button" class="outline-button compact-install" aria-label="Εγκατάσταση εφαρμογής" hidden>Εγκατάσταση</button>
         <button id="importTop" type="button" class="primary-button compact-import"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg><span>Προσθήκη</span></button>
       </div>
     </header>
@@ -33,9 +32,8 @@
       <div id="importProgress" class="import-progress" hidden><span id="importText">Εισαγωγή…</span><div class="progress-track"><span id="importBar"></span></div></div>
 
       <section class="library" aria-label="Βιβλιοθήκη τραγουδιών">
-        <div class="section-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h2>Η βιβλιοθήκη σου</h2></div><div class="library-stats">
+        <div class="section-heading"><div><h2>Η βιβλιοθήκη σου</h2></div><div class="library-stats">
           <span id="trackCount" class="counter">0 τραγούδια</span>
-          <span id="networkStatus" class="connection" aria-label="Κατάσταση σύνδεσης"><span class="status-dot"></span><span id="networkText">Offline ready</span></span>
         </div></div>
         <div class="toolbar">
           <label class="search-wrap"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input type="search" id="search" placeholder="Τίτλος ή καλλιτέχνης…" autocomplete="off" aria-label="Αναζήτηση τραγουδιού"></label>
@@ -54,11 +52,8 @@
         </div>
       </section>
 
-      <section class="info-card">
-        <div class="info-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M12 17v-5m0-4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20"/></svg></div>
-        <div><strong>Στο iPhone: εγκατάστησε πρώτα, πρόσθεσε μετά</strong><p>Safari → Κοινοποίηση → Προσθήκη στην Αρχική οθόνη. Άνοιξε το DriveTunes από το εικονίδιο και τότε πρόσθεσε τραγούδια. Τα δεδομένα του Safari και της εγκατεστημένης εφαρμογής μπορεί να είναι χωριστά.</p></div>
-      </section>
-      <div class="storage-info"><span id="storageUsed">Αποθηκευμένα στη συσκευή: —</span><span>Κράτησε και τα πρωτότυπα αρχεία σου.</span></div>
+
+      <div class="storage-info"><span id="storageUsed">Αποθηκευμένα στη συσκευή: —</span></div>
     </main>
   </div>
 
@@ -90,10 +85,6 @@
     <div class="dialog-actions"><button id="deleteTrackBtn" class="danger-button" type="button">Διαγραφή</button><button id="saveTrackBtn" class="primary-button" type="button">Αποθήκευση</button></div>
   </form></dialog>
 
-  <dialog id="installDialog" class="app-dialog" aria-labelledby="installTitle"><div class="dialog-top"><h2 id="installTitle">Εγκατάσταση στο iPhone</h2><button type="button" class="close-button" id="installClose" aria-label="Κλείσιμο">×</button></div>
-    <p>Άνοιξε το DriveTunes στο Safari και πάτησε <strong>Κοινοποίηση</strong> → <strong>Προσθήκη στην Αρχική οθόνη</strong> → <strong>Προσθήκη</strong>.</p>
-    <p class="subdued">Άνοιξε πρώτα το εγκατεστημένο DriveTunes και <em>μετά</em> πρόσθεσε τα αρχεία μουσικής σου.</p>
-    <button type="button" class="primary-button full-button" id="installOk">Κατάλαβα</button>
-  </dialog>
+
 </body>
 </html>
