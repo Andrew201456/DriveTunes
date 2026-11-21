@@ -37,7 +37,7 @@ assert.equal(parsed.title,'Νυχτερινή βόλτα');assert.equal(parsed.a
 console.log('PASS: files, manifest, JS/SW syntax, HTML IDs, CSS braces, ID3 metadata, filename parsing, local blob storage paths');
 
 assert(!html.includes('class="hero"'),'Oversized hero must not reappear');
-assert(html.includes('class="compact-import"'),'Compact add button missing');
+assert(html.includes('class="primary-button compact-import"'),'Compact add button missing');
 assert(html.includes('id="networkStatus"'),'Network status missing');
 assert(js.includes("safe('previoustrack',()=>playPrevious(true))"),'Previous track must switch songs');
 assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch songs');
