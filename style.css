@@ -20,3 +20,41 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
 @media(max-width:390px){.app-shell{padding-left:12px;padding-right:12px}.hero{padding-top:25px}.hero h1{font-size:39px}.player-dock{padding-left:12px;padding-right:12px}.connection{font-size:0;gap:0;padding:8px}.connection .status-dot{width:7px;height:7px}.track{gap:8px}.track-art{width:42px;height:42px}.track-action{width:33px}.app-heading strong{font-size:15px}}
 @media(min-width:900px){.hero{padding-top:40px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Compact app bar. Go straight to the music library — no oversized hero. */
+.app-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top,0px)) 0 12px;border-bottom:1px solid rgba(155,187,227,.1)}
+.app-brand{display:flex;align-items:center;gap:9px;min-width:0}
+.app-header .logo-mark{width:38px;height:38px;border-radius:11px}
+.app-header .logo-mark svg{width:23px;height:23px}
+.app-header .app-heading strong{font-size:15px;letter-spacing:-.25px}
+.app-header .app-heading span{font-size:10px;line-height:1.2}
+.header-tools{display:flex;align-items:center;gap:6px;flex:none}
+.compact-import,.compact-install{min-height:38px;padding:8px 11px;border-radius:10px;font-size:12px;line-height:1.15;white-space:nowrap}
+.compact-import .ico{width:16px;height:16px}
+.compact-install{padding-left:10px;padding-right:10px}
+.library{margin-top:13px}
+.library .section-heading{align-items:center;gap:8px;margin-bottom:15px}
+.library .section-heading h2{font-size:22px;margin-top:4px}
+.library-stats{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.library-stats .connection{margin-left:0;padding:6px 8px;font-size:9px}
+.library-stats .counter{padding:6px 9px}
+@media(max-width:420px){
+ .app-header{gap:7px}
+ .app-header .logo-mark{width:35px;height:35px}
+ .app-header .app-heading strong{font-size:14px}
+ .app-header .app-heading span{font-size:9px}
+ .header-tools{gap:5px}
+ .compact-import{min-height:36px;padding:8px 9px;font-size:11px}
+ .compact-install{font-size:0;padding:7px 9px;min-height:36px;min-width:34px}
+ .compact-install::before{content:"⇩";font-size:16px;line-height:1}
+ .library .section-heading{align-items:flex-start}
+ .library .section-heading h2{font-size:21px}
+ .library-stats{flex-direction:column;align-items:flex-end;gap:5px}
+ .library-stats .connection{padding:4px 7px}
+}
+@media(max-width:350px){
+ .app-header .app-heading span{display:none}
+ .app-header .logo-mark{width:32px;height:32px}
+ .compact-import .ico{width:15px;height:15px}
+ .compact-import{padding:7px 8px}
+}
