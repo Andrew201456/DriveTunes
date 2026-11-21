@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c1728">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DriveTunes">
+  <meta name="description" content="Τα τραγούδια σου, αποθηκευμένα στο iPhone. Αναπαραγωγή χωρίς internet.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>DriveTunes · Offline Music</title>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 20V12m5 12V8m5 18V6m5 14v-8"/></svg></div>
+      <div class="app-heading"><strong>DriveTunes</strong><span>Η μουσική σου, παντού.</span></div>
+      <span id="networkStatus" class="connection" aria-label="Κατάσταση σύνδεσης"><span class="status-dot"></span><span id="networkText">Offline ready</span></span>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="Μουσική βιβλιοθήκη">
+        <div class="eyebrow"><span class="tiny-line"></span> PERSONAL MUSIC SPACE</div>
+        <h1>Ο δικός σου<br><em>ρυθμός.</em></h1>
+        <p>Βάλε τραγούδια από τα Αρχεία του iPhone και άκουσέ τα όπου κι αν είσαι.</p>
+        <div class="hero-actions">
+          <button id="importTop" type="button" class="primary-button"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg> Προσθήκη τραγουδιών</button>
+          <button id="installBtn" type="button" class="outline-button" hidden>Εγκατάσταση</button>
+        </div>
+      </section>
+
+      <div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
+      <div id="importProgress" class="import-progress" hidden><span id="importText">Εισαγωγή…</span><div class="progress-track"><span id="importBar"></span></div></div>
+
+      <section class="library" aria-label="Βιβλιοθήκη τραγουδιών">
+        <div class="section-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h2>Η βιβλιοθήκη σου</h2></div><span id="trackCount" class="counter">0 τραγούδια</span></div>
+        <div class="toolbar">
+          <label class="search-wrap"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input type="search" id="search" placeholder="Τίτλος ή καλλιτέχνης…" autocomplete="off" aria-label="Αναζήτηση τραγουδιού"></label>
+          <button id="sortBtn" type="button" class="sort-button" aria-label="Αλλαγή σειράς" title="Αλλαγή σειράς"><svg class="ico" viewBox="0 0 24 24"><path d="m7 4 0 15m-4-4 4 4 4-4M17 20V5m-4 4 4-4 4 4"/></svg></button>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Φίλτρο τραγουδιών">
+          <button class="tab active" role="tab" aria-selected="true" data-filter="all">Όλα τα τραγούδια</button>
+          <button class="tab" role="tab" aria-selected="false" data-filter="favorites">Αγαπημένα <span aria-hidden="true">♥</span></button>
+        </div>
+        <div id="trackList" class="track-list"></div>
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <strong>Τα αγαπημένα σου τραγούδια σε περιμένουν.</strong>
+          <p>Πάτησε «Προσθήκη τραγουδιών» και διάλεξε μουσική από τα Αρχεία σου.</p>
+          <button type="button" id="emptyImport" class="secondary-button">+ Επιλογή αρχείων</button>
+        </div>
+      </section>
+
+      <section class="info-card">
+        <div class="info-icon"><svg class="ico" viewBox="0 0 24 24"><path d="M12 17v-5m0-4h.01M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20"/></svg></div>
+        <div><strong>Στο iPhone: εγκατάστησε πρώτα, πρόσθεσε μετά</strong><p>Safari → Κοινοποίηση → Προσθήκη στην Αρχική οθόνη. Άνοιξε το DriveTunes από το εικονίδιο και τότε πρόσθεσε τραγούδια. Τα δεδομένα του Safari και της εγκατεστημένης εφαρμογής μπορεί να είναι χωριστά.</p></div>
+      </section>
+      <div class="storage-info"><span id="storageUsed">Αποθηκευμένα στη συσκευή: —</span><span>Κράτησε και τα πρωτότυπα αρχεία σου.</span></div>
+    </main>
+  </div>
+
+  <div class="player-dock" id="playerDock" hidden>
+    <div class="dock-inner">
+      <div class="mini-row">
+        <div class="mini-cover" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M13 22V8l12-3v13"/><circle cx="9" cy="22" r="4"/><circle cx="21" cy="18" r="4"/></svg></div>
+        <div class="mini-details"><strong id="nowTitle">—</strong><span id="nowArtist">—</span></div>
+        <button class="icon-button mini-more" id="nowMore" aria-label="Επιλογές τραγουδιού"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+      <div class="seek-row"><span id="currentTime">0:00</span><input id="seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Θέση αναπαραγωγής"><span id="duration">0:00</span></div>
+      <div class="control-row">
+        <button id="shuffleBtn" type="button" class="icon-button aux-control" aria-label="Τυχαία σειρά" aria-pressed="false" title="Τυχαία σειρά"><svg class="ico" viewBox="0 0 24 24"><path d="m3 17 3 0c6 0 6-10 12-10h3m-4-4 4 4-4 4M3 7h3c2 0 3 1 4 3m3 4c1 2 2 3 5 3h3m-4-4 4 4-4 4"/></svg></button>
+        <button id="prevBtn" type="button" class="icon-button transport" aria-label="Προηγούμενο"><svg class="ico" viewBox="0 0 24 24"><path d="M5 5v14M19 5 7 12l12 7z"/></svg></button>
+        <button id="playBtn" type="button" class="play-button" aria-label="Αναπαραγωγή"><svg id="playIcon" viewBox="0 0 24 24" class="ico"><path d="M8 5v14l11-7z"/></svg></button>
+        <button id="nextBtn" type="button" class="icon-button transport" aria-label="Επόμενο"><svg class="ico" viewBox="0 0 24 24"><path d="M19 5v14M5 5l12 7-12 7z"/></svg></button>
+        <button id="repeatBtn" type="button" class="icon-button aux-control" aria-label="Επανάληψη: κλειστή" title="Επανάληψη"><svg class="ico" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4m14-1v2a3 3 0 0 1-3 3H3"/></svg><span id="repeatOneBadge" hidden>1</span></button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio" preload="metadata" playsinline></audio>
+  <input id="fileInput" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.aiff" multiple hidden>
+
+  <dialog id="trackDialog" class="app-dialog" aria-labelledby="dialogTitle"><form method="dialog" id="trackDialogForm">
+    <div class="dialog-top"><h2 id="dialogTitle">Επεξεργασία τραγουδιού</h2><button class="close-button" type="submit" aria-label="Κλείσιμο">×</button></div>
+    <label for="editTitle">Τίτλος</label><input id="editTitle" autocomplete="off" maxlength="200">
+    <label for="editArtist">Καλλιτέχνης</label><input id="editArtist" autocomplete="off" maxlength="200">
+    <div class="dialog-actions"><button id="deleteTrackBtn" class="danger-button" type="button">Διαγραφή</button><button id="saveTrackBtn" class="primary-button" type="button">Αποθήκευση</button></div>
+  </form></dialog>
+
+  <dialog id="installDialog" class="app-dialog" aria-labelledby="installTitle"><div class="dialog-top"><h2 id="installTitle">Εγκατάσταση στο iPhone</h2><button type="button" class="close-button" id="installClose" aria-label="Κλείσιμο">×</button></div>
+    <p>Άνοιξε το DriveTunes στο Safari και πάτησε <strong>Κοινοποίηση</strong> → <strong>Προσθήκη στην Αρχική οθόνη</strong> → <strong>Προσθήκη</strong>.</p>
+    <p class="subdued">Άνοιξε πρώτα το εγκατεστημένο DriveTunes και <em>μετά</em> πρόσθεσε τα αρχεία μουσικής σου.</p>
+    <button type="button" class="primary-button full-button" id="installOk">Κατάλαβα</button>
+  </dialog>
+</body>
+</html>
