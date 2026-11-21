@@ -78,3 +78,8 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
  .track-info span{font-size:12px}
  .track-action{width:42px;min-width:42px;height:46px;flex-basis:42px}
 }
+
+/* Cleaner library: no extra installation or network status panels. */
+.library-stats{gap:0}
+.library .section-heading{margin-bottom:13px}
+.storage-info{padding:18px 10px;color:#7995b2}
