@@ -35,3 +35,12 @@ const file=new File([mp3],'example.mp3',{type:'audio/mpeg'});
 const parsed=await tools.readTags(file);
 assert.equal(parsed.title,'Νυχτερινή βόλτα');assert.equal(parsed.artist,'Test Artist');assert.equal(parsed.album,'Car Mix');
 console.log('PASS: files, manifest, JS/SW syntax, HTML IDs, CSS braces, ID3 metadata, filename parsing, local blob storage paths');
+
+assert(!html.includes('class="hero"'),'Oversized hero must not reappear');
+assert(html.includes('class="primary-button compact-import"'),'Compact add button missing');
+assert(html.includes('id="networkStatus"'),'Network status missing');
+assert(js.includes("safe('previoustrack',()=>playPrevious(true))"),'Previous track must switch songs');
+assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch songs');
+assert(!/safe\('seek(?:backward|forward)',details/.test(js),'10 second skipping handlers remain');
+assert(js.includes("safe('seekbackward',null)")&&js.includes("safe('seekforward',null)"),'Skip controls must be deregistered');
+assert(sw.includes('drivetunes-shell-v2'),'Cache version should be bumped');

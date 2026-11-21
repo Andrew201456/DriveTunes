@@ -18,27 +18,25 @@
 <body>
   <div class="app-shell">
     <header class="app-header">
-      <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 20V12m5 12V8m5 18V6m5 14v-8"/></svg></div>
-      <div class="app-heading"><strong>DriveTunes</strong><span>Η μουσική σου, παντού.</span></div>
-      <span id="networkStatus" class="connection" aria-label="Κατάσταση σύνδεσης"><span class="status-dot"></span><span id="networkText">Offline ready</span></span>
+      <div class="app-brand">
+        <div class="logo-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M8 20V12m5 12V8m5 18V6m5 14v-8"/></svg></div>
+        <div class="app-heading"><strong>DriveTunes</strong><span>Offline Music</span></div>
+      </div>
+      <div class="header-tools">
+        <button id="installBtn" type="button" class="outline-button compact-install" aria-label="Εγκατάσταση εφαρμογής" hidden>Εγκατάσταση</button>
+        <button id="importTop" type="button" class="primary-button compact-import"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg><span>Προσθήκη</span></button>
+      </div>
     </header>
 
     <main>
-      <section class="hero" aria-label="Μουσική βιβλιοθήκη">
-        <div class="eyebrow"><span class="tiny-line"></span> PERSONAL MUSIC SPACE</div>
-        <h1>Ο δικός σου<br><em>ρυθμός.</em></h1>
-        <p>Βάλε τραγούδια από τα Αρχεία του iPhone και άκουσέ τα όπου κι αν είσαι.</p>
-        <div class="hero-actions">
-          <button id="importTop" type="button" class="primary-button"><svg class="ico" viewBox="0 0 24 24"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg> Προσθήκη τραγουδιών</button>
-          <button id="installBtn" type="button" class="outline-button" hidden>Εγκατάσταση</button>
-        </div>
-      </section>
-
       <div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
       <div id="importProgress" class="import-progress" hidden><span id="importText">Εισαγωγή…</span><div class="progress-track"><span id="importBar"></span></div></div>
 
       <section class="library" aria-label="Βιβλιοθήκη τραγουδιών">
-        <div class="section-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h2>Η βιβλιοθήκη σου</h2></div><span id="trackCount" class="counter">0 τραγούδια</span></div>
+        <div class="section-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h2>Η βιβλιοθήκη σου</h2></div><div class="library-stats">
+          <span id="trackCount" class="counter">0 τραγούδια</span>
+          <span id="networkStatus" class="connection" aria-label="Κατάσταση σύνδεσης"><span class="status-dot"></span><span id="networkText">Offline ready</span></span>
+        </div></div>
         <div class="toolbar">
           <label class="search-wrap"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input type="search" id="search" placeholder="Τίτλος ή καλλιτέχνης…" autocomplete="off" aria-label="Αναζήτηση τραγουδιού"></label>
           <button id="sortBtn" type="button" class="sort-button" aria-label="Αλλαγή σειράς" title="Αλλαγή σειράς"><svg class="ico" viewBox="0 0 24 24"><path d="m7 4 0 15m-4-4 4 4 4-4M17 20V5m-4 4 4-4 4 4"/></svg></button>

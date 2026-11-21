@@ -361,9 +361,9 @@
     if(next==null){audio.pause();updatePlayButton();return;}
     await loadTrack(next,true);
   }
-  async function playPrevious(){
+  async function playPrevious(alwaysPrevious=false){
     if(currentId==null)return;
-    if(audio.currentTime>3){audio.currentTime=0;return;}
+    if(!alwaysPrevious&&audio.currentTime>3){audio.currentTime=0;return;}
     const previous=nextIdFromQueue(currentId,false);
     if(previous!==null)await loadTrack(previous,true);
     else audio.currentTime=0;
@@ -428,10 +428,14 @@
     if(!('mediaSession' in navigator))return;
     const safe=(action,fn)=>{try{navigator.mediaSession.setActionHandler(action,fn)}catch(_){}};
     safe('play',()=>startPlayback());safe('pause',()=>audio.pause());
-    safe('previoustrack',()=>playPrevious());safe('nexttrack',()=>playNext());
-    safe('seekto',details=>{if(Number.isFinite(details.seekTime)&&Number.isFinite(audio.duration))audio.currentTime=Math.max(0,Math.min(details.seekTime,audio.duration));});
-    safe('seekbackward',details=>{audio.currentTime=Math.max(0,audio.currentTime-(details.seekOffset||10));});
-    safe('seekforward',details=>{if(Number.isFinite(audio.duration))audio.currentTime=Math.min(audio.duration,audio.currentTime+(details.seekOffset||10));});
+    // Lock screen and Bluetooth transport controls should change SONGS.
+    safe('previoustrack',()=>playPrevious(true));
+    safe('nexttrack',()=>playNext());
+    // Explicitly unregister seeking actions so the app doesn't request ±10s controls.
+    // Safari/iOS can still choose its own OS-level control layout.
+    safe('seekbackward',null);
+    safe('seekforward',null);
+    safe('seekto',null);
     safe('stop',()=>{audio.pause();audio.currentTime=0;});
   }
   function syncProgress(){
