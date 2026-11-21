@@ -44,3 +44,9 @@ assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch s
 assert(!/safe\('seek(?:backward|forward)',details/.test(js),'10 second skipping handlers remain');
 assert(js.includes("safe('seekbackward',null)")&&js.includes("safe('seekforward',null)"),'Skip controls must be deregistered');
 assert(sw.includes('drivetunes-shell-v2'),'Cache version should be bumped');
+
+assert(js.includes("audio.addEventListener('playing',()=>{installHandlers();updateMediaSession();updatePlayButton();})"),'Media Session must be registered after audio starts');
+assert(js.includes('await audio.play();installHandlers();updateMediaSession()'),'Media Session registration after successful play missing');
+assert(js.includes('row.dataset.play=String(track.id)'),'Card tap-to-play target missing');
+assert(css.includes('.track{min-height:84px'),'Larger song rows missing');
+assert(sw.includes('drivetunes-shell-v3'),'PWA cache version not updated');

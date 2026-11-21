@@ -225,7 +225,7 @@
     dom.trackList.replaceChildren();
     const fragment = document.createDocumentFragment();
     for (const track of visible) {
-      const row = document.createElement('div'); row.className = 'track' + (track.id === currentId ? ' current' : '');
+      const row = document.createElement('div'); row.className = 'track' + (track.id === currentId ? ' current' : ''); row.dataset.play=String(track.id);
       const art = document.createElement('span'); art.className='track-art'; art.appendChild(svgNote());
       const info = document.createElement('button');info.type='button';info.className='track-info';info.dataset.play=String(track.id);
       info.title=`Αναπαραγωγή: ${track.title}`;
@@ -345,7 +345,7 @@
   }
   async function startPlayback(){
     if(currentId==null){if(tracks.length){const id=sortedTracks()[0]?.id??tracks[0].id;prepareQueue(id);await loadTrack(id,true);}return;}
-    try{await audio.play();updatePlayButton();}
+    try{await audio.play();installHandlers();updateMediaSession();updatePlayButton();}
     catch(error){
       updatePlayButton();
       if(error?.name==='NotAllowedError')showNotice('Το iPhone χρειάζεται πάτημα στο ▶ για να ξεκινήσει η μουσική.','error',9500);
@@ -417,12 +417,16 @@
   }
 
   async function onTrackListClick(event){
-    const button=event.target.closest('button');if(!button)return;
-    const id=Number(button.dataset.play??button.dataset.favorite??button.dataset.menu);
+    const row=event.target.closest('.track');
+    if(!row)return;
+    const button=event.target.closest('button');
+    const id=Number(button?.dataset.play??button?.dataset.favorite??button?.dataset.menu??row.dataset.play);
     if(!Number.isSafeInteger(id))return;
-    if('play' in button.dataset){prepareQueue(id);await loadTrack(id,true);}
-    else if('favorite' in button.dataset){const t=tracks.find(x=>x.id===id);if(t)await updateTrack({...t,favorite:!t.favorite});}
-    else if('menu' in button.dataset)openEdit(id);
+    // Large tap target: pressing artwork or free card space also starts the song.
+    // Favorite and edit remain independent, accessible buttons.
+    if(button && 'favorite' in button.dataset){const t=tracks.find(x=>x.id===id);if(t)await updateTrack({...t,favorite:!t.favorite});}
+    else if(button && 'menu' in button.dataset)openEdit(id);
+    else{prepareQueue(id);await loadTrack(id,true);}
   }
   function installHandlers(){
     if(!('mediaSession' in navigator))return;
@@ -432,7 +436,8 @@
     safe('previoustrack',()=>playPrevious(true));
     safe('nexttrack',()=>playNext());
     // Explicitly unregister seeking actions so the app doesn't request ±10s controls.
-    // Safari/iOS can still choose its own OS-level control layout.
+    // Re-register on 'playing' and after audio.play(): iOS WebKit may ignore
+    // actions set up before the audio session is active. The OS still owns its UI.
     safe('seekbackward',null);
     safe('seekforward',null);
     safe('seekto',null);
@@ -486,7 +491,7 @@
   dom.saveTrackBtn.addEventListener('click',saveEdit);dom.deleteTrackBtn.addEventListener('click',removeFromDialog);
   dom.trackDialog.addEventListener('close',()=>{dialogId=null;});
   audio.addEventListener('play',updatePlayButton);audio.addEventListener('pause',updatePlayButton);
-  audio.addEventListener('playing',updatePlayButton);audio.addEventListener('loadedmetadata',syncProgress);
+  audio.addEventListener('playing',()=>{installHandlers();updateMediaSession();updatePlayButton();});audio.addEventListener('loadedmetadata',syncProgress);
   audio.addEventListener('durationchange',syncProgress);audio.addEventListener('timeupdate',syncProgress);
   audio.addEventListener('ended',()=>playNext(true));
   audio.addEventListener('error',()=>{if(audio.currentSrc)showNotice('Αυτό το αρχείο δεν μπορεί να αναπαραχθεί. Δοκίμασε MP3 ή M4A.','error',9500);});
