@@ -38,7 +38,7 @@
         <p id="pcSetupHint" class="pc-help">Βάλε μία φορά τη διεύθυνση όπου ανοίγεις το DataTransfer. Χρησιμοποιείται μόνο για τη σύνδεση των συσκευών.</p>
         <button id="pcTransferStart" class="pc-start" type="button">Έναρξη μεταφοράς</button>
         <div id="pcPairing" class="pc-pairing" hidden>
-          <span class="pc-label">Στον υπολογιστή άνοιξε:</span>
+          <span class="pc-label">Στον υπολογιστή άνοιξε (αφού ξεκινήσεις το DriveTunes-PC.cmd):</span>
           <span id="pcSenderUrl" class="pc-sender-url"></span>
           <span class="pc-label">Κωδικός σύνδεσης:</span>
           <strong id="pcPairCode" class="pc-pair-code">—</strong>
@@ -47,36 +47,6 @@
         <p id="pcTransferStatus" class="pc-status" role="status" aria-live="polite"></p>
         <div id="pcReceiveName" class="pc-receive-name"></div>
         <progress id="pcReceiveProgress" max="100" value="0" hidden></progress>
-      </section>
-      <section class="spotify-import" aria-label="Spotify link">
-        <form id="spotifyForm" class="spotify-form">
-          <label for="spotifyUrl" class="spotify-label">Spotify link <span>· Βρες τα τραγούδια που έχεις offline</span></label>
-          <div class="spotify-input-row">
-            <input id="spotifyUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Link τραγουδιού ή playlist" aria-describedby="spotifyHint">
-            <button id="spotifyFind" type="submit" class="spotify-find">Εύρεση</button>
-          </div>
-        </form>
-        <p id="spotifyHint" class="spotify-hint">Δεν κατεβάζει ήχο από το Spotify. Αντιστοιχίζει links με τα αρχεία σου.</p>
-        <div id="spotifyFeedback" class="spotify-feedback" role="status" aria-live="polite" hidden></div>
-        <div id="spotifyResults" class="spotify-results" hidden>
-          <div class="spotify-results-head">
-            <strong id="spotifyResultTitle"></strong>
-            <a id="spotifySource" target="_blank" rel="noopener noreferrer" href="https://open.spotify.com/">Spotify</a>
-          </div>
-          <div id="spotifyMatchedList" class="spotify-match-list"></div>
-          <button id="spotifyPlay" type="button" class="spotify-play" hidden>▶ Παίξε τα διαθέσιμα</button>
-        </div>
-        <details class="spotify-settings" id="spotifySettings">
-          <summary>Σύνδεση Spotify για δικές σου playlists</summary>
-          <p>Για να διαβάσουμε όλα τα τραγούδια της playlist σου χρειάζεται δωρεάν Spotify Developer Client ID και σύνδεση λογαριασμού. Το Spotify επιτρέπει πρόσβαση μόνο σε playlists που διαχειρίζεσαι. Η μουσική παραμένει στα δικά σου αρχεία.</p>
-          <label for="spotifyClientId">Spotify Client ID</label>
-          <input id="spotifyClientId" autocomplete="off" spellcheck="false" placeholder="Client ID (όχι Secret)">
-          <div class="spotify-settings-actions">
-            <button type="button" id="spotifyConnect">Σύνδεση Spotify</button>
-            <button type="button" id="spotifyDisconnect">Αποσύνδεση</button>
-          </div>
-          <p class="spotify-setup">Redirect URL για την εφαρμογή Spotify Developer: <code id="spotifyRedirect"></code></p>
-        </details>
       </section>
       <div id="notice" role="status" aria-live="polite" class="notice" hidden></div>
       <div id="importProgress" class="import-progress" hidden><span id="importText">Εισαγωγή…</span><div class="progress-track"><span id="importBar"></span></div></div>

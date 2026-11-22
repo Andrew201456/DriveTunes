@@ -37,7 +37,7 @@
     try{localStorage.setItem(STORE,server);}catch{}
   }
   function pairingUrl(server,room){
-    const url=new URL('./pc-transfer.html',location.href);
+    const url=new URL('http://127.0.0.1:8765/');
     url.hash=new URLSearchParams({room,server}).toString();
     return url.href;
   }
