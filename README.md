@@ -1,6 +1,6 @@
 # DriveTunes Offline Music
 
-**Ένας απλός, ιδιωτικός music player για iPhone και Android.** Η βασική λειτουργία δεν απαιτεί backend, λογαριασμό, συγχρονισμό με cloud ή ανέβασμα τραγουδιών. Η προαιρετική αντιστοίχιση Spotify playlists απαιτεί εξουσιοδότηση Spotify μόνο για ανάγνωση metadata. Τα αρχεία μουσικής αποθηκεύονται ως Blob σε **IndexedDB** της συσκευής, και το interface λειτουργεί χωρίς internet μέσω Service Worker.
+**Ένας απλός, ιδιωτικός music player για iPhone και Android.** Η βασική λειτουργία δεν απαιτεί backend, λογαριασμό, συγχρονισμό με cloud ή ανέβασμα τραγουδιών. Τα αρχεία μουσικής αποθηκεύονται ως Blob σε **IndexedDB** της συσκευής, και το interface λειτουργεί χωρίς internet μέσω Service Worker.
 
 ## Πώς το χρησιμοποιείς στο iPhone
 
@@ -68,29 +68,6 @@ python3 -m http.server 8080
 - Τα audio Blob δεν μεταφορτώνονται: μόνο τοπική πρόσβαση μέσω browser storage.
 - Τα αντικείμενα URL ανακαλούνται όταν αλλάζει ή διαγράφεται τραγούδι.
 - Το Service Worker cache περιέχει **μόνο** τον κώδικα, τα εικονίδια και το UI — όχι τα προσωπικά μουσικά αρχεία.
-
-## Spotify links — αντιστοίχιση με offline τραγούδια
-
-Η μπάρα Spotify link δέχεται URLs τραγουδιών και playlists. Εμφανίζει Spotify metadata και αντιστοιχίζει τίτλους/καλλιτέχνες με MP3/M4A κ.λπ. που έχεις ήδη προσθέσει στην τοπική IndexedDB. Τα ταιριασμένα τραγούδια παίζουν offline. **Κανένα αρχείο ήχου δεν κατεβαίνει από Spotify.**
-
-### Μεμονωμένο τραγούδι
-
-Επικόλλησε πλήρες open.spotify.com/track/ link και πάτησε Εύρεση. Χρησιμοποιείται το επίσημο Spotify oEmbed (χωρίς login).
-
-### Ολόκληρη playlist (δική σου ή συνεργατική)
-
-Για τίτλους playlist χρειάζεται Spotify Developer Client ID και Spotify authorization. Από το 2026, το Development Mode απαιτεί Spotify Premium στον δημιουργό εφαρμογής, ενώ το API επιτρέπει ανάγνωση περιεχομένων μόνο σε δικές σου ή συνεργατικές playlists.
-
-1. Δημιούργησε Spotify Developer App και πάρε Client ID (όχι Client Secret).
-2. Καταχώρισε στις ρυθμίσεις του Spotify app ακριβώς το Redirect URL που εμφανίζει το DriveTunes.
-3. Στο DriveTunes άνοιξε «Σύνδεση Spotify για δικές σου playlists», συμπλήρωσε Client ID και πάτησε «Σύνδεση Spotify».
-4. Επικόλλησε ένα open.spotify.com/playlist/ link. Θα εμφανιστούν μέχρι 500 τίτλοι, και θα μπορείς να ακούσεις μόνο όσα υπάρχουν ήδη ως αρχεία στη συσκευή.
-
-Χρησιμοποιείται OAuth PKCE, χωρίς Client Secret στον browser. Τα access tokens κρατιούνται προσωρινά στο sessionStorage και τα metadata μόνο στη μνήμη της σελίδας. Σε iPhone PWA η ανακατεύθυνση Spotify μπορεί να ανοίξει Safari, οπότε ίσως χρειαστεί η σύνδεση από το Safari.
-
-Το offline playback δεν αλλάζει. Η ανάλυση Spotify link απαιτεί internet, αλλά τα δικά σου αποθηκευμένα τραγούδια όχι. Μη σβήνεις τα πρωτότυπα αρχεία.
-
-Επίσημη τεκμηρίωση: https://developer.spotify.com/documentation/embeds/reference/oembed, https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow, https://developer.spotify.com/documentation/web-api/reference/get-playlists-items, https://developer.spotify.com/policy
 
 ## Ασύρματη μεταφορά τραγουδιών από Windows PC με τοπική IP
 
