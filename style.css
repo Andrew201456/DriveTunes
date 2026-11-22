@@ -122,3 +122,33 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
 .spotify-setup{color:#8ea6c0;overflow-wrap:anywhere}
 .spotify-setup code{user-select:all;-webkit-user-select:all;font-size:10px;color:#b9cce2}
 @media(max-width:400px){.spotify-import{padding:12px;margin-top:11px}.spotify-label span{display:block;margin-top:3px}.spotify-input-row{gap:6px}.spotify-find{padding:8px 10px}.spotify-match{align-items:flex-start;gap:6px}}
+
+
+/* Compact PC-to-iPhone transfer. Only visible when the user requests it. */
+.compact-pc{min-height:43px;padding:9px 11px;font-size:12px;border-radius:11px;white-space:nowrap}
+.pc-panel{background:linear-gradient(160deg,#142c43,#10253a);border:1px solid #34536e;
+ border-radius:16px;padding:15px;margin:13px 0 18px}
+.pc-panel[hidden],.pc-pairing[hidden],.pc-panel progress[hidden]{display:none!important}
+.pc-panel-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pc-panel-top strong{font-size:14px;font-weight:800}
+.pc-panel-top button{font-size:24px;line-height:1;background:transparent;border:0;color:#b9cbe0;
+ padding:5px 8px;border-radius:9px}
+.pc-panel label,.pc-label{display:block;margin:12px 0 6px;font-size:11px;color:#b5c9e0;font-weight:700}
+.pc-panel input{min-height:44px;width:100%;background:#091e31;border:1px solid #446581;color:#f2f7ff;
+ border-radius:11px;padding:9px 12px;min-width:0;font-size:16px}
+.pc-panel input::placeholder{color:#7891ab}
+.pc-help{margin:7px 0;font-size:11px;line-height:1.45;color:#9ab3ce}
+.pc-start{margin-top:10px;background:#315675;color:#edf5ff;min-height:40px;padding:9px 14px;
+ border:1px solid #4b7190;font-size:12px;font-weight:800;border-radius:11px}
+.pc-pairing{margin-top:15px;padding:12px 13px;background:#1b3750;border:1px solid #315575;border-radius:12px}
+.pc-pairing .pc-label{margin:8px 0 4px}
+.pc-pairing .pc-label:first-child{margin-top:0}
+.pc-sender-url{display:block;font-size:12px;line-height:1.45;word-break:break-all;color:#f2f7ff;user-select:all;-webkit-user-select:all}
+.pc-pair-code{font-size:22px;display:block;line-height:1.45;letter-spacing:1.2px;color:#ffd2aa;user-select:all;-webkit-user-select:all}
+.pc-copy{margin-top:10px;min-height:39px;font-size:11px;padding:8px 11px;border-radius:10px;
+ background:#294a64;color:#fff;border:1px solid #496b86}
+.pc-status{margin:10px 0 4px;min-height:16px;color:#95ddc1;font-size:12px;line-height:1.5}
+.pc-status.error{color:#ffb5bf}
+.pc-receive-name{font-size:11px;color:#b7cce2;overflow-wrap:anywhere}
+.pc-panel progress{width:100%;accent-color:#ffad7c;height:9px;margin-top:7px}
+@media(max-width:380px){.compact-pc{padding:9px 10px;font-size:11px}.pc-pair-code{font-size:20px}}

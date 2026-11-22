@@ -42,13 +42,13 @@ assert(js.includes("safe('previoustrack',()=>playPrevious(true))"),'Previous tra
 assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch songs');
 assert(!/safe\('seek(?:backward|forward)',details/.test(js),'10 second skipping handlers remain');
 assert(js.includes("safe('seekbackward',ios?()=>playPrevious(true):null)")&&js.includes("safe('seekforward',ios?()=>playNext():null)"),'iOS seek controls must select songs');
-assert(sw.includes('drivetunes-shell-v5'),'Cache version should be bumped');
+assert(sw.includes('drivetunes-shell-v6'),'Cache version should be bumped');
 
 assert(js.includes("audio.addEventListener('playing',()=>{installHandlers();updateMediaSession();updatePlayButton();})"),'Media Session must be registered after audio starts');
 assert(js.includes('await audio.play();installHandlers();updateMediaSession()'),'Media Session registration after successful play missing');
 assert(js.includes('row.dataset.play=String(track.id)'),'Card tap-to-play target missing');
 assert(css.includes('.track{min-height:84px'),'Larger song rows missing');
-assert(sw.includes('drivetunes-shell-v5'),'PWA cache version not updated');
+assert(sw.includes('drivetunes-shell-v6'),'PWA cache version not updated');
 
 assert(!html.includes('class="info-card"'),'Installation instructions must be removed');
 assert(!html.includes('id="installDialog"')&&!html.includes('id="installBtn"'),'In-app install UI must be removed');
@@ -84,3 +84,28 @@ assert.equal(matchTools.spotifyFindLocal({title:'Summer Lights',artist:'Other Ar
 assert.equal(matchTools.spotifyFindLocal({title:'Νυχτερινή βόλτα',artist:'Δοκιμή'}).id,1);
 assert.equal(matchTools.spotifyOembedTitle('Summer Lights - song and lyrics by Example Band | Spotify').artist,'Example Band');
 console.log('PASS: Spotify URL validation, PKCE configuration, metadata matching and local queue');
+
+
+// Direct PC-to-iPhone transfer: app storage, scripts, and WebRTC signaling.
+for(const id of ['pcTransferToggle','pcTransferPanel','pcTransferServer','pcTransferStart',
+ 'pcTransferClose','pcPairing','pcPairCode','pcSenderUrl','pcCopyLink',
+ 'pcTransferStatus','pcReceiveProgress','pcReceiveName']){
+ assert(html.includes('id="'+id+'"'),'PC transfer element missing: '+id);
+}
+assert(html.includes('src="./pc-bridge.js"')&&html.includes('src="./receiver-transfer.js"'));
+assert(js.includes('window.DriveTunesImportApi={addFile,loadAllTracks}'),'Receiver must access existing local music import');
+for(const path of ['pc-transfer.html','pc-transfer.css','pc-transfer.js','pc-bridge.js','receiver-transfer.js']){
+ assert(existsSync(resolve(root,path)),'Missing PC transfer file: '+path);
+}
+for(const path of ['pc-transfer.js','pc-bridge.js','receiver-transfer.js']){
+ assert.doesNotThrow(()=>new Function(load(path)),path+' syntax invalid');
+}
+const bridgeJs=load('pc-bridge.js'),receiveJs=load('receiver-transfer.js'),senderJs=load('pc-transfer.js');
+assert(bridgeJs.includes("new WebSocket(endpoint.href)"),'Signaling must use DataTransfer Worker');
+assert(bridgeJs.includes("new RTCPeerConnection(ICE)"),'Song bytes must use WebRTC');
+assert(receiveJs.includes("await api.addFile(audioFile)"),'Uploaded audio must be saved in DriveTunes');
+assert(receiveJs.includes("await api.loadAllTracks()"),'Library must refresh after import');
+assert(senderJs.includes("file.slice(offset,offset+B.CHUNK)"),'Large files must stream in chunks');
+assert(senderJs.includes("await handshake('saved'"),'Sender must wait for saved acknowledgment');
+assert(sw.includes('drivetunes-shell-v6'),'New transfer pages must be in updated offline cache');
+console.log('PASS: PC-to-iPhone WebRTC transfer scripts and original offline music storage');

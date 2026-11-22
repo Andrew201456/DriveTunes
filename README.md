@@ -91,3 +91,17 @@ python3 -m http.server 8080
 Το offline playback δεν αλλάζει. Η ανάλυση Spotify link απαιτεί internet, αλλά τα δικά σου αποθηκευμένα τραγούδια όχι. Μη σβήνεις τα πρωτότυπα αρχεία.
 
 Επίσημη τεκμηρίωση: https://developer.spotify.com/documentation/embeds/reference/oembed, https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow, https://developer.spotify.com/documentation/web-api/reference/get-playlists-items, https://developer.spotify.com/policy
+
+## Ασύρματη μεταφορά από PC στο DriveTunes
+
+Το εγκατεστημένο **DriveTunes** στο iPhone έχει κουμπί **Από PC**. Το ανοίγεις και εμφανίζεται η διεύθυνση της σελίδας αποστολής με έναν μοναδικό κωδικό 10 χαρακτήρων. Στον υπολογιστή ανοίγεις τη σελίδα **pc-transfer.html** του ίδιου DriveTunes site, βάζεις τον κωδικό και πατάς «Σύνδεση». Έπειτα επιλέγεις πολλά MP3/M4A ή τα σέρνεις στο παράθυρο. Κάθε αρχείο αποθηκεύεται απευθείας στην ίδια IndexedDB που χρησιμοποιεί ο εγκατεστημένος player στο iPhone. Το όριο ανά αρχείο είναι 120 MB για προστασία της μνήμης του iPhone.
+
+### Μία αρχική ρύθμιση: URL DataTransfer
+
+Επειδή μια web εφαρμογή στο iPhone δεν μπορεί να ανοίξει HTTP server στη δική της τοπική IP, χρησιμοποιεί WebRTC DataChannel. Για την αρχική ανταλλαγή σήματος (signaling) αξιοποιεί τον ήδη υπάρχοντα **Cloudflare Worker του DataTransfer** από το repository Andrew201456/DataTransfer.
+
+Στο πεδίο «Διεύθυνση DataTransfer» στο DriveTunes βάζεις **μία φορά** το HTTPS URL όπου ανοίγεις τη δική σου εφαρμογή DataTransfer. Ο browser το θυμάται. Στα Windows συμπληρώνεις την ίδια διεύθυνση μία φορά ή ανοίγεις από το PC τον πλήρη σύνδεσμο που αντιγράφεις στο iPhone, ο οποίος περιέχει κωδικό και διεύθυνση μόνο στο URL fragment. Αν το ήδη εγκατεστημένο DataTransfer δεν έχει λειτουργικό WebSocket endpoint στο /ws, χρειάζεται πρώτα να διορθωθεί το DataTransfer.
+
+**Η μουσική δεν ανεβαίνει σε Cloudflare ή άλλο server**: μόνο τα μηνύματα έναρξης της σύνδεσης περνούν από το Worker. Το αρχείο περνά απευθείας, κρυπτογραφημένα, μεταξύ PC και iPhone μέσω WebRTC (STUN, χωρίς TURN). Χρειάζεται internet για αρχικό signaling, και ιδανικά οι συσκευές είναι στο ίδιο Wi-Fi. Σε δίκτυα με απομόνωση συσκευών ή περιοριστικό NAT ενδέχεται να αποτύχει η απευθείας σύνδεση.
+
+Άνοιξε την υποδοχή μεταφοράς από την **εγκατεστημένη** εφαρμογή DriveTunes στο iPhone (όχι από διαφορετική καρτέλα Safari), ώστε τα νέα τραγούδια να προστεθούν στη σωστή τοπική βιβλιοθήκη. Δεν αλλάζουν η βάση, τα υπάρχοντα τραγούδια ή το offline playback.

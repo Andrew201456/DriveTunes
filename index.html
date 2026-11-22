@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="./style.css">
   <title>DriveTunes · Offline Music</title>
   <script src="./app.js" defer></script>
+  <script src="./pc-bridge.js" defer></script>
+  <script src="./receiver-transfer.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -23,11 +25,29 @@
         <div class="app-heading"><strong>DriveTunes</strong></div>
       </div>
       <div class="header-tools">
+        <button id="pcTransferToggle" type="button" class="outline-button compact-pc" aria-expanded="false" aria-controls="pcTransferPanel">Από PC</button>
         <button id="importTop" type="button" class="primary-button compact-import"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m-5-5 5 5 5-5M5 20h14"/></svg><span>Προσθήκη</span></button>
       </div>
     </header>
 
     <main>
+      <section id="pcTransferPanel" class="pc-panel" aria-label="Μεταφορά τραγουδιών από PC" hidden>
+        <div class="pc-panel-top"><strong>Μεταφορά από υπολογιστή</strong><button id="pcTransferClose" type="button" aria-label="Κλείσιμο">×</button></div>
+        <label for="pcTransferServer">Διεύθυνση DataTransfer</label>
+        <input id="pcTransferServer" type="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="https://διεύθυνση-DataTransfer">
+        <p id="pcSetupHint" class="pc-help">Βάλε μία φορά τη διεύθυνση όπου ανοίγεις το DataTransfer. Χρησιμοποιείται μόνο για τη σύνδεση των συσκευών.</p>
+        <button id="pcTransferStart" class="pc-start" type="button">Έναρξη μεταφοράς</button>
+        <div id="pcPairing" class="pc-pairing" hidden>
+          <span class="pc-label">Στον υπολογιστή άνοιξε:</span>
+          <span id="pcSenderUrl" class="pc-sender-url"></span>
+          <span class="pc-label">Κωδικός σύνδεσης:</span>
+          <strong id="pcPairCode" class="pc-pair-code">—</strong>
+          <button id="pcCopyLink" class="pc-copy" type="button">Αντιγραφή πλήρους συνδέσμου</button>
+        </div>
+        <p id="pcTransferStatus" class="pc-status" role="status" aria-live="polite"></p>
+        <div id="pcReceiveName" class="pc-receive-name"></div>
+        <progress id="pcReceiveProgress" max="100" value="0" hidden></progress>
+      </section>
       <section class="spotify-import" aria-label="Spotify link">
         <form id="spotifyForm" class="spotify-form">
           <label for="spotifyUrl" class="spotify-label">Spotify link <span>· Βρες τα τραγούδια που έχεις offline</span></label>

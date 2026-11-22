@@ -1,6 +1,6 @@
 /* Offline app shell only. Imported audio remains in private IndexedDB on this device. */
-const CACHE = 'drivetunes-shell-v5';
-const SHELL = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png', './assets/apple-touch-icon.png'];
+const CACHE = 'drivetunes-shell-v6';
+const SHELL = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './assets/icon.svg', './assets/icon-192.png', './assets/icon-512.png', './assets/apple-touch-icon.png', './pc-bridge.js', './receiver-transfer.js', './pc-transfer.html', './pc-transfer.css', './pc-transfer.js'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));
 });
