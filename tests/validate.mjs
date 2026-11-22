@@ -94,7 +94,7 @@ for(const id of ['pcTransferToggle','pcTransferPanel','pcTransferServer','pcTran
 }
 assert(html.includes('src="./pc-bridge.js"')&&html.includes('src="./receiver-transfer.js"'));
 assert(js.includes('window.DriveTunesImportApi={addFile,loadAllTracks}'),'Receiver must access existing local music import');
-for(const path of ['pc-transfer.html','pc-transfer.css','pc-transfer.js','pc-bridge.js','receiver-transfer.js']){
+for(const path of ['pc-transfer.html','pc-transfer.css','pc-transfer.js','pc-bridge.js','receiver-transfer.js','DriveTunes-PC.cmd']){
  assert(existsSync(resolve(root,path)),'Missing PC transfer file: '+path);
 }
 for(const path of ['pc-transfer.js','pc-bridge.js','receiver-transfer.js']){
@@ -109,3 +109,18 @@ assert(senderJs.includes("file.slice(offset,offset+B.CHUNK)"),'Large files must 
 assert(senderJs.includes("await handshake('saved'"),'Sender must wait for saved acknowledgment');
 assert(sw.includes('drivetunes-shell-v6'),'New transfer pages must be in updated offline cache');
 console.log('PASS: PC-to-iPhone WebRTC transfer scripts and original offline music storage');
+
+
+// Spotify entry point and integration have been fully removed.
+assert(!html.toLowerCase().includes('spotify'),'Spotify UI must not appear in DriveTunes');
+assert(!js.toLowerCase().includes('spotify'),'Spotify JS and OAuth must be removed');
+assert(!css.toLowerCase().includes('spotify'),'Spotify styling must be removed');
+assert(sw.includes('drivetunes-shell-v7'),'New version must invalidate old Spotify shell');
+const launcher=load('DriveTunes-PC.cmd');
+assert(launcher.includes("TcpListener]::new([System.Net.IPAddress]::Loopback,$port)"),
+ 'Windows launcher must listen only on local loopback interface');
+assert(launcher.includes("http://127.0.0.1:"),'Windows launcher missing local IP');
+assert(!launcher.includes("0.0.0.0"),'Windows launcher must not expose the UI on all interfaces');
+assert(load('receiver-transfer.js').includes("'http://127.0.0.1:8765/'"),
+ 'iPhone should show local PC browser IP');
+console.log('PASS: Spotify removed and PC IP launcher configured');

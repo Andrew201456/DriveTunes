@@ -34,7 +34,8 @@ assert.throws(()=>bridge.normalizeServer('http://transfer.example'));
 assert.throws(()=>bridge.normalizeServer('https://transfer.example/ws'));
 assert.throws(()=>bridge.normalizeServer('https://user:pass@transfer.example'));
 const link=new URL(bridge.pairingUrl('https://transfer.example',code));
-assert.equal(link.pathname,'/app/pc-transfer.html');
+assert.equal(link.origin,'http://127.0.0.1:8765');
+assert.equal(link.pathname,'/');
 assert.equal(new URLSearchParams(link.hash.slice(1)).get('room'),code);
 assert.equal(new URLSearchParams(link.hash.slice(1)).get('server'),'https://transfer.example');
 const p=bridge.pair({role:'receiver',room:code,server:'https://transfer.example'});
@@ -100,3 +101,14 @@ assert.equal(libraryRefreshes,1);
 await chan.deliver(JSON.stringify({type:'file',name:'bad.exe',size:3,mime:'application/octet-stream'}));
 assert.equal(sent.at(-1).type,'error');
 console.log('PASS: pairing code/server validation, signaling handshake, binary receiver, IndexedDB save acknowledgements');
+
+// The Windows launcher should serve a local browser UI, not listen on the iPhone,
+// and must not expose any local files beyond its fixed allowlist.
+const launcher=load('DriveTunes-PC.cmd');
+assert(launcher.includes('TcpListener]::new([System.Net.IPAddress]::Loopback,$port)'));
+assert(launcher.includes("http://127.0.0.1:"));
+assert(launcher.includes("'/' = 'pc-transfer.html'"));
+assert(launcher.includes("'/pc-bridge.js' = 'pc-bridge.js'"));
+assert(launcher.includes("'/pc-transfer.js' = 'pc-transfer.js'"));
+assert(!launcher.includes('0.0.0.0'));
+console.log('PASS: local Windows localhost server configuration');

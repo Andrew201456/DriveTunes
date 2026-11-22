@@ -43,7 +43,7 @@
         code=B.randomCode();receivedCount=0;
         link=B.pairingUrl(server,code);
         ui.code.textContent=code;
-        ui.pcUrl.textContent=new URL('./pc-transfer.html',location.href).href;
+        ui.pcUrl.textContent='http://127.0.0.1:8765/';
         ui.pairing.hidden=false;ui.instructions.hidden=true;
         bridge=B.pair({
           role:'receiver',room:code,server,

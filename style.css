@@ -85,45 +85,6 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
 .storage-info{padding:18px 10px;color:#7995b2}
 
 
-/* Spotify link helper — compact and optional. Never presents metadata as downloads. */
-.spotify-import{margin:14px 0 20px;background:linear-gradient(145deg,#14283f,#102238);border:1px solid #294763;border-radius:17px;padding:14px}
-.spotify-form{margin:0}
-.spotify-label{display:block;color:#edf5ff;font-size:13px;font-weight:800;margin:0 0 9px}
-.spotify-label span{color:#a1b6cf;font-weight:500;font-size:11px}
-.spotify-input-row{display:flex;gap:8px;align-items:stretch}
-.spotify-input-row input{min-width:0;flex:1;color:#f2f7ff;background:#0b1d30;border:1px solid #3a5573;border-radius:12px;padding:11px 12px;font-size:15px;min-height:45px;-webkit-appearance:none;appearance:none}
-.spotify-input-row input::placeholder{color:#829cb8}
-.spotify-input-row input:focus{border-color:#ffab7b;outline:0;box-shadow:0 0 0 3px rgba(255,156,99,.15)}
-.spotify-find{flex:none;background:#31506d;border:1px solid #496e8d;color:#f2f7ff;border-radius:12px;padding:10px 14px;min-height:45px;font-size:12px;font-weight:800}
-.spotify-find:disabled{opacity:.6}
-.spotify-hint{margin:8px 1px 0;font-size:11px;color:#95aac2;line-height:1.5}
-.spotify-feedback{font-size:12px;line-height:1.55;color:#cbdcf0;border-radius:10px;margin-top:12px;background:#1c3750;padding:10px 12px}
-.spotify-feedback.error{background:#3e2b37;color:#ffd2d5}
-.spotify-results{margin-top:12px;padding-top:12px;border-top:1px solid #304963}
-.spotify-results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:10px}
-.spotify-results-head strong{min-width:0;overflow-wrap:anywhere}
-.spotify-results-head a{font-size:11px;color:#b7cde8;white-space:nowrap}
-.spotify-match-list{display:flex;flex-direction:column;gap:7px;max-height:270px;overflow-y:auto}
-.spotify-match{display:flex;gap:10px;align-items:center;justify-content:space-between;background:#1b344b;border:1px solid #2f506b;border-radius:11px;padding:10px 11px;min-height:45px}
-.spotify-match strong{font-size:12px;line-height:1.4;font-weight:750;overflow-wrap:anywhere}
-.spotify-match small{display:block;color:#9fb3cb;font-size:11px;margin-top:3px;line-height:1.4}
-.spotify-match .spotify-status{color:#7de4c3;white-space:nowrap;font-size:11px;font-weight:800}
-.spotify-match .spotify-status.missing{color:#f3b6ac}
-.spotify-play{width:100%;margin-top:11px;background:#ffab77;color:#172638;border:0;font-size:12px;font-weight:850}
-.spotify-settings{margin-top:11px;font-size:11px;color:#9eb4cd}
-.spotify-settings summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;min-height:30px}
-.spotify-settings summary::-webkit-details-marker{display:none}
-.spotify-settings summary::before{content:"⚙";margin-right:6px}
-.spotify-settings p{line-height:1.6;margin:9px 0 11px}
-.spotify-settings label{display:block;margin:9px 0 5px}
-.spotify-settings input{width:100%;border:1px solid #3a5573;background:#0b1d30;color:#f2f7ff;min-height:43px;border-radius:11px;padding:9px 12px;min-width:0;font-size:14px}
-.spotify-settings-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.spotify-settings-actions button{font-size:11px;background:#263e56;color:#dbe8fa;border:1px solid #3b5874;min-height:40px;padding:9px 12px}
-.spotify-setup{color:#8ea6c0;overflow-wrap:anywhere}
-.spotify-setup code{user-select:all;-webkit-user-select:all;font-size:10px;color:#b9cce2}
-@media(max-width:400px){.spotify-import{padding:12px;margin-top:11px}.spotify-label span{display:block;margin-top:3px}.spotify-input-row{gap:6px}.spotify-find{padding:8px 10px}.spotify-match{align-items:flex-start;gap:6px}}
-
-
 /* Compact PC-to-iPhone transfer. Only visible when the user requests it. */
 .compact-pc{min-height:43px;padding:9px 11px;font-size:12px;border-radius:11px;white-space:nowrap}
 .pc-panel{background:linear-gradient(160deg,#142c43,#10253a);border:1px solid #34536e;
