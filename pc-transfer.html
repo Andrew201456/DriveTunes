@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1728">
+<meta name="robots" content="noindex,nofollow">
+<title>DriveTunes · Μεταφορά από PC</title>
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./pc-transfer.css">
+<script src="./pc-bridge.js" defer></script>
+<script src="./pc-transfer.js" defer></script>
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <div class="brand"><span class="mark">♫</span><div><strong>DriveTunes</strong><small>Μεταφορά μουσικής από PC</small></div></div>
+    <span class="chip">Ασύρματα</span>
+  </header>
+
+  <section class="intro">
+    <h1>Στείλε τα τραγούδια σου στο iPhone.</h1>
+    <p>Άνοιξε το DriveTunes στο iPhone, πάτησε «Από PC» και βάλε εδώ τον κωδικό που εμφανίζεται.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="pairTitle">
+    <div class="section-head"><span class="step">1</span><h2 id="pairTitle">Σύνδεση με iPhone</h2></div>
+    <label for="roomCode">Κωδικός από το DriveTunes</label>
+    <input id="roomCode" class="room" maxlength="14" spellcheck="false" autocapitalize="characters" autocomplete="off" placeholder="π.χ. AB42CD78EF" aria-label="Κωδικός σύνδεσης">
+    <details class="server-details">
+      <summary>Διεύθυνση DataTransfer (ρύθμιση μόνο την πρώτη φορά)</summary>
+      <label for="serverUrl">HTTPS διεύθυνση της εφαρμογής DataTransfer</label>
+      <input id="serverUrl" type="url" spellcheck="false" autocomplete="url" placeholder="https://η-διεύθυνση-του-DataTransfer">
+    </details>
+    <div class="actions">
+      <button id="connectBtn" class="primary" type="button">Σύνδεση</button>
+      <button id="disconnectBtn" type="button" hidden>Αποσύνδεση</button>
+    </div>
+    <div id="pcStatus" class="status" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="sendTitle">
+    <div class="section-head"><span class="step">2</span><h2 id="sendTitle">Προσθήκη τραγουδιών</h2></div>
+    <div id="dropZone" class="drop">
+      <div class="music">♫</div>
+      <strong>Σύρε τα τραγούδια εδώ</strong>
+      <p>ή διάλεξε πολλά αρχεία μαζί</p>
+      <button id="chooseBtn" type="button">Επιλογή MP3 / M4A</button>
+      <input id="pcFiles" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.aif,.aiff" multiple hidden>
+    </div>
+    <div class="transfer-detail">
+      <div id="progressName" class="progress-name"></div>
+      <progress id="fileProgress" max="100" value="0" hidden></progress>
+      <small id="queueLabel"></small>
+    </div>
+  </section>
+
+  <footer>Τα αρχεία μεταφέρονται απευθείας στη βιβλιοθήκη DriveTunes του iPhone μέσω WebRTC. Ο server DataTransfer χρησιμοποιείται μόνο για την αρχική σύνδεση.</footer>
+</main>
+</body>
+</html>

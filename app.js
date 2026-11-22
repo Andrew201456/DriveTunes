@@ -734,5 +734,7 @@
     try{await loadAllTracks();}catch(err){console.error(err);showNotice('Δεν άνοιξε η τοπική βιβλιοθήκη. Έλεγξε τις ρυθμίσεις αποθήκευσης του Safari.','error',0);}
     await spotifyAuthCallback().catch(e=>spotifyStatus(e.message,true));
   }
+  // Receiver imports directly into the original IndexedDB in this installed app.
+  window.DriveTunesImportApi={addFile,loadAllTracks};
   start();
 })();
