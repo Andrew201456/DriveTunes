@@ -72,7 +72,7 @@ python3 -m http.server 8080
 
 ## Ασφάλεια / ιδιωτικότητα
 
-- Δεν υπάρχει API για μουσική, streaming, tracking ή analytics.
+- Η **offline** βιβλιοθήκη δεν χρησιμοποιεί εξωτερικό streaming, λογαριασμούς ή analytics. **Μόνο** όταν χρησιμοποιείς τη ξεχωριστή συλλογή Spotify, το DriveTunes ζητά τίτλους μέσω του επίσημου Spotify oEmbed endpoint και φορτώνει τον Spotify Embed online player.
 - Τα audio Blob δεν μεταφορτώνονται: μόνο τοπική πρόσβαση μέσω browser storage.
 - Τα αντικείμενα URL ανακαλούνται όταν αλλάζει ή διαγράφεται τραγούδι.
 - Το Service Worker cache περιέχει **μόνο** τον κώδικα, τα εικονίδια και το UI — όχι τα προσωπικά μουσικά αρχεία.
