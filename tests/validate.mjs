@@ -42,13 +42,13 @@ assert(js.includes("safe('previoustrack',()=>playPrevious(true))"),'Previous tra
 assert(js.includes("safe('nexttrack',()=>playNext())"),'Next track must switch songs');
 assert(!/safe\('seek(?:backward|forward)',details/.test(js),'10 second skipping handlers remain');
 assert(js.includes("safe('seekbackward',ios?()=>playPrevious(true):null)")&&js.includes("safe('seekforward',ios?()=>playNext():null)"),'iOS seek controls must select songs');
-assert(sw.includes('drivetunes-shell-v7'),'Cache version should be bumped');
+assert(sw.includes('drivetunes-shell-v8'),'Cache version should be bumped');
 
 assert(js.includes("audio.addEventListener('playing',()=>{installHandlers();updateMediaSession();updatePlayButton();})"),'Media Session must be registered after audio starts');
 assert(js.includes('await audio.play();installHandlers();updateMediaSession()'),'Media Session registration after successful play missing');
 assert(js.includes('row.dataset.play=String(track.id)'),'Card tap-to-play target missing');
 assert(css.includes('.track{min-height:84px'),'Larger song rows missing');
-assert(sw.includes('drivetunes-shell-v7'),'PWA cache version not updated');
+assert(sw.includes('drivetunes-shell-v8'),'PWA cache version not updated');
 
 assert(!html.includes('class="info-card"'),'Installation instructions must be removed');
 assert(!html.includes('id="installDialog"')&&!html.includes('id="installBtn"'),'In-app install UI must be removed');
@@ -78,15 +78,33 @@ assert(receiveJs.includes("await api.addFile(audioFile)"),'Uploaded audio must b
 assert(receiveJs.includes("await api.loadAllTracks()"),'Library must refresh after import');
 assert(senderJs.includes("file.slice(offset,offset+B.CHUNK)"),'Large files must stream in chunks');
 assert(senderJs.includes("await handshake('saved'"),'Sender must wait for saved acknowledgment');
-assert(sw.includes('drivetunes-shell-v7'),'New transfer pages must be in updated offline cache');
+assert(sw.includes('drivetunes-shell-v8'),'New transfer pages must be in updated offline cache');
 console.log('PASS: PC-to-iPhone WebRTC transfer scripts and original offline music storage');
 
 
-// Spotify entry point and integration have been fully removed.
-assert(!html.toLowerCase().includes('spotify'),'Spotify UI must not appear in DriveTunes');
-assert(!js.toLowerCase().includes('spotify'),'Spotify JS and OAuth must be removed');
-assert(!css.toLowerCase().includes('spotify'),'Spotify styling must be removed');
-assert(sw.includes('drivetunes-shell-v7'),'New version must invalidate old Spotify shell');
+// Spotify links are online-only and must not enter the offline audio stores.
+const spotifyJs=load('spotify.js'),spotifyCss=load('spotify.css');
+assert.doesNotThrow(()=>new Function(spotifyJs),'Spotify JS syntax invalid');
+assert(html.includes('id="spotifyToggle"')&&html.includes('id="spotifyPanel"')&&html.includes('id="spotifyForm"'));
+assert(html.includes('src="./spotify.js"')&&html.includes('href="./spotify.css"'));
+assert(sw.includes("'./spotify.js'")&&sw.includes("'./spotify.css'"));
+assert(spotifyJs.includes('open.spotify.com/embed/'),'Official Spotify embed required');
+assert(spotifyJs.includes('open.spotify.com/oembed?url='),'Spotify metadata lookup required');
+assert(!spotifyJs.includes("blob: file"),'Spotify must not save audio in IndexedDB');
+assert(!sw.includes('open.spotify.com'),'Spotify audio must not be cached by service worker');
+const parseStart=spotifyJs.indexOf('  function parseSpotifyLink('),parseEnd=spotifyJs.indexOf('  function request(',parseStart);
+assert(parseStart>0&&parseEnd>parseStart);
+const parseSpotifyLink=new Function(spotifyJs.slice(parseStart,parseEnd)+'\nreturn parseSpotifyLink;')();
+const trackId='4uLU6hMCjMI75M1A2tKUQC',playlistId='37i9dQZF1DXcBWIGoYBM5M';
+assert.deepEqual(parseSpotifyLink('https://open.spotify.com/track/'+trackId+'?si=test'),
+ {key:'track:'+trackId,kind:'track',id:trackId,url:'https://open.spotify.com/track/'+trackId});
+assert.equal(parseSpotifyLink('https://open.spotify.com/intl-el/playlist/'+playlistId)?.kind,'playlist');
+assert.equal(parseSpotifyLink('spotify:track:'+trackId)?.id,trackId);
+for(const invalid of ['https://other.example/track/'+trackId,'http://open.spotify.com/track/'+trackId,
+ 'https://open.spotify.com/album/'+trackId,'https://open.spotify.com/track/invalid'])
+ assert.equal(parseSpotifyLink(invalid),null,'Unsafe/unsupported Spotify URL accepted: '+invalid);
+assert(spotifyCss.includes('.spotify-panel')&&spotifyJs.includes("indexedDB.open(DB_NAME, 1)"));
+console.log('PASS: Spotify link validation, official online embed, separate link storage, no audio download');
 const launcher=load('DriveTunes-PC.cmd');
 assert(launcher.includes("TcpListener]::new([System.Net.IPAddress]::Loopback,$port)"),
  'Windows launcher must listen only on local loopback interface');
