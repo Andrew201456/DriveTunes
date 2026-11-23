@@ -12,8 +12,10 @@
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./spotify.css">
   <title>DriveTunes · Offline Music</title>
   <script src="./app.js" defer></script>
+  <script src="./spotify.js" defer></script>
   <script src="./pc-bridge.js" defer></script>
   <script src="./receiver-transfer.js" defer></script>
 </head>
@@ -63,6 +65,27 @@
           <button class="tab active" role="tab" aria-selected="true" data-filter="all">Όλα τα τραγούδια</button>
           <button class="tab" role="tab" aria-selected="false" data-filter="favorites">Αγαπημένα <span aria-hidden="true">♥</span></button>
         </div>
+        <div class="spotify-entry">
+          <button type="button" id="spotifyToggle" class="spotify-toggle" aria-expanded="false" aria-controls="spotifyPanel">+ Spotify link</button>
+        </div>
+        <section id="spotifyPanel" class="spotify-panel" aria-label="Spotify links" hidden>
+          <div class="spotify-panel-top">
+            <strong>Spotify τραγούδια & playlists</strong>
+            <button id="spotifyClose" type="button" aria-label="Κλείσιμο Spotify">×</button>
+          </div>
+          <p class="spotify-help">Βάλε έναν σύνδεσμο Spotify και άκουσέ τον εδώ μέσω του επίσημου Spotify player. Απαιτείται internet — δεν γίνεται αυτόματη λήψη ήχου.</p>
+          <form id="spotifyForm" class="spotify-form">
+            <input id="spotifyUrl" type="url" inputmode="url" placeholder="https://open.spotify.com/track/..." aria-label="Σύνδεσμος τραγουδιού ή playlist Spotify" autocomplete="off" autocapitalize="off" spellcheck="false" required>
+            <button type="submit">Προσθήκη</button>
+          </form>
+          <p id="spotifyStatus" class="spotify-status" role="status" aria-live="polite"></p>
+          <div id="spotifyList" class="spotify-list"></div>
+          <div id="spotifyPlayer" class="spotify-player" hidden></div>
+          <div class="spotify-offline">
+            <p>Για πραγματική offline ακρόαση, πρόσθεσε δικό σου MP3/M4A. Θα αποθηκευτεί στη συσκευή, όπως και τα υπόλοιπα τραγούδια.</p>
+            <button id="spotifyOfflineImport" type="button">+ Offline αρχείο</button>
+          </div>
+        </section>
         <div id="trackList" class="track-list"></div>
         <div id="emptyState" class="empty-state">
           <div class="empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
