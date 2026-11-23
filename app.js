@@ -236,6 +236,7 @@
     }
     dom.trackList.appendChild(fragment);
     dom.emptyState.hidden=visible.length>0;
+    document.dispatchEvent(new Event('drivetunes:library-render'));
     const headline=dom.emptyState.querySelector('strong'),paragraph=dom.emptyState.querySelector('p'),action=dom.emptyState.querySelector('button');
     if(tracks.length===0){headline.textContent='Τα αγαπημένα σου τραγούδια σε περιμένουν.';paragraph.textContent='Πάτησε «Προσθήκη τραγουδιών» και διάλεξε μουσική από τα Αρχεία σου.';action.hidden=false;}
     else {headline.textContent='Δεν βρέθηκαν τραγούδια.';paragraph.textContent=prefs.filter==='favorites'?'Πάτησε την καρδιά δίπλα σε ένα τραγούδι για να το βρεις εδώ.':'Δοκίμασε άλλη αναζήτηση.';action.hidden=true;}
@@ -487,6 +488,6 @@
     try{await loadAllTracks();}catch(err){console.error(err);showNotice('Δεν άνοιξε η τοπική βιβλιοθήκη. Έλεγξε τις ρυθμίσεις αποθήκευσης του Safari.','error',0);}
   }
   // Receiver imports directly into the original IndexedDB in this installed app.
-  window.DriveTunesImportApi={addFile,loadAllTracks};
+  window.DriveTunesImportApi={addFile,loadAllTracks,renderLibrary,getTracks:()=>tracks.slice(),getPrefs:()=>({...prefs})};
   start();
 })();
